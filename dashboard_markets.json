@@ -1,0 +1,69 @@
+[
+  {
+    "id": "nikkei",
+    "name": "日経平均",
+    "yahoo": "^N225",
+    "stooq": "^nkx",
+    "unit": "pt",
+    "zone": "Asia/Tokyo",
+    "caption": "NIKKEI 225",
+    "yahoo_jp": "https://finance.yahoo.co.jp/quote/998407.O",
+    "enabled": true
+  },
+  {
+    "id": "topix",
+    "name": "TOPIX",
+    "yahoo": null,
+    "stooq": "^tpx",
+    "unit": "pt",
+    "zone": "Asia/Tokyo",
+    "caption": "東証株価指数",
+    "yahoo_jp": "https://finance.yahoo.co.jp/quote/998405.T",
+    "enabled": true,
+    "kind": "topix"
+  },
+  {
+    "id": "usdjpy",
+    "name": "ドル円",
+    "yahoo": "JPY=X",
+    "stooq": "usdjpy",
+    "unit": "円 / 1 USD",
+    "zone": "Europe/London",
+    "caption": "USD / JPY",
+    "yahoo_jp": "https://finance.yahoo.co.jp/fx/detail/?code=USDJPY=FX",
+    "enabled": true
+  },
+  {
+    "id": "sp500",
+    "name": "S&P500",
+    "yahoo": "^GSPC",
+    "stooq": "^spx",
+    "unit": "pt",
+    "zone": "America/New_York",
+    "caption": "S&P 500",
+    "yahoo_jp": "https://finance.yahoo.co.jp/quote/%5EGSPC",
+    "enabled": true
+  },
+  {
+    "id": "nasdaq",
+    "name": "NASDAQ総合",
+    "yahoo": "^IXIC",
+    "stooq": "^ndq",
+    "unit": "pt",
+    "zone": "America/New_York",
+    "caption": "NASDAQ COMPOSITE",
+    "yahoo_jp": "https://finance.yahoo.co.jp/quote/%5EIXIC",
+    "enabled": true
+  },
+  {
+    "id": "gold",
+    "name": "金（先物）",
+    "yahoo": "GC=F",
+    "stooq": "gc.f",
+    "unit": "USD",
+    "zone": "America/New_York",
+    "caption": "GOLD FUTURES",
+    "yahoo_jp": "https://finance.yahoo.co.jp/quote/GC%3DF",
+    "enabled": true
+  }
+]

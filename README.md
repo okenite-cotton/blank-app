@@ -1,25 +1,101 @@
-# 🎈 Blank app template
+# My Investment Dashboard — 指標編集・保存対応版
 
-A simple Streamlit app template for you to modify!
+## まず使うファイル
 
-[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://blank-app-template.streamlit.app/)
+- `streamlit_app.py`：アプリ本体。
+- `sector_radar.py`：日米のセクター比較機能。アプリ本体と同じフォルダーに置きます。
+- `requirements.txt`：必要なライブラリ。動作確認したバージョンを指定しています。
+- `test_streamlit_app.py`：動作確認用。普段の起動には不要です。
+- `test_sector_radar.py`：Sector Radarの計算確認用。普段の起動には不要です。
 
-### How to run it on your own machine
+## Codespacesでの置き換えと起動
 
-Prerequisite: install `uv` if you don't already have it.
+1. ZIPをダウンロードして展開します。
+2. Codespacesの左のファイル一覧で、現在の `streamlit_app.py` の内容を別のファイル（例：`streamlit_app_before_topix.py`）にコピーして保存します。`requirements.txt` も同様に控えを残します。既に同名の控えがあれば、別の名前を使ってください。
+3. 新しい `streamlit_app.py` をメモ帳などで開き、全文をコピーします。Codespacesの同名ファイルを開き、全文を選択して貼り付け、Ctrl+Sで保存します。
+4. `sector_radar.py` も `streamlit_app.py` と同じフォルダーへ置き、`requirements.txt` を更新します。このダッシュボード専用のプロジェクトなら、同梱ファイルの内容に置き換えられます。
+5. Streamlitを実行しているターミナルで **Ctrl+C** を１回押して停止します。入力できる状態なら、そのまま次へ進みます。
+6. 次を１行ずつ実行します。今回の参照会話では、プロジェクトの場所は `/workspaces/blank-app` でした。
 
+```bash
+cd /workspaces/blank-app
+python -m pip install -r requirements.txt
+python -m streamlit run streamlit_app.py --server.address 0.0.0.0 --server.port 8502
 ```
-$ curl -LsSf https://astral.sh/uv/install.sh | sh
+
+7. 「ポート」タブの **8502** の行で「ブラウザーで開く」を選びます。別のポートの古い画面を見ていないか確認してください。ポートの公開範囲は変更する必要はありません。
+
+起動後にターミナルの入力待ちへ戻らないのは正常です。Streamlitがアプリを表示するために動いています。コードを変更して保存すると、通常は画面が再実行されます。
+
+Pythonは3.10以上が必要です。`python --version` で確認できます。インストールでエラーが出た場合は、起動に進まず、エラー内容を確認してください。
+
+## 変わった点
+
+- 画面下部に「Sector Radar」を追加しました。日本のTOPIX-17 ETFと米国の11セクターETFを、市場全体に対する5日・20日の強さ、順位変化、出来高比率で比較できます。
+- 「日本／米国」「Signal順／5日順位順」を画面上で切り替え、急浮上候補、全業種一覧、選択した業種の相対強度チャートを確認できます。
+- Sector Radarは当日の日足を除外し、比較市場と同じ21営業日が揃った業種だけで順位を計算します。取得失敗や欠損は除外理由を表示します。
+- サイドバーの「人気の指標から追加」と「好きなコードを入力」から指標を追加できます。自由入力は登録前にデータを確認します。
+- 指標の表示・非表示、並べ替え、表示名・単位の編集、削除、初期5指標への復元ができます。
+- 設定は `dashboard_markets.json` に自動保存されます。サイドバーから設定ファイルをダウンロードし、別のCodespacesでも読み込めます。
+- すべてのカードから、日本版Yahoo!ファイナンスの詳細ページを開けます。
+- TOPIXを日本版Yahoo!ファイナンスの時系列表から取得します。日本版Web用の `998405.T` をyfinanceには渡しません。
+- 日経平均・ドル円・S&P500・NASDAQ総合は、Yahoo Financeを使います。
+- 各指標で取得が失敗すると、Stooqを試します。データが７暦日を超えて古い場合、または比較用の日足が足りない場合も代替元を試します。
+- データ元を切り替えても、前日差・前日比は必ず同じ取得元の直近２日足から計算します。指数をETFや先物の価格に置き換える処理はありません。
+- 価格は小数点以下２桁。単位を別の行にし、画面が狭いときはカードを折り返します。成功・失敗時とも、同じ行のカードの高さをそろえます。
+- ミニチャートは最大20日足。一覧表には取得できない指標も残します。
+- 空データ、欠損、無限大、０以下の値、未来の日付を除外します。日付を昇順にそろえ、重複も除去します。比較用の日足が１つしかなければ、前日比を「—」にします。
+- 通信にはタイムアウトを設け、通信断・サーバー障害だけ１回再試行します。認証・アクセス制限・ブラウザー確認は回避しません。
+
+## データ日の見方
+
+この画面は、日足ベースの参考値を表示します。取引中の当日分は変動し、確定した終値とは限りません。TOPIXの日本版Yahoo時系列は直近の掲載済み終値を使うため、他の指標よりデータ日が前になることがあります。
+
+「前日比」は、取得できた直近２日足の比較です。休場や欠損で日付が離れている場合は、その期間の変化を表します。カードと一覧表に「データ日」「比較日」を表示します。為替の日付・日足区切りや更新時刻は取得元ごとに異なります。
+
+ミニチャートの縦軸は指標ごとに異なります。線の高さだけで指標間の変動率を比較しないでください。
+
+## キャッシュと失敗時の表示
+
+成功した取得結果は５分間再利用します。５分ごとの自動更新ではなく、画面が再実行された際に期限を確認します。「今すぐ更新」は期限を待たず再取得します。
+
+すべての取得元が失敗した場合、同じ画面のセッション内で前回成功したデータがあれば、「更新できず、前回の値を表示」と明記して残します。代替元のデータ日が前回より古い場合も、前回の値を保持します。初回から取得できない場合は「取得できません」と表示し、０や架空の価格を表示しません。
+
+前回の値はメモリー内に保持します。ブラウザー再読み込み・接続切断・アプリ再起動後の保持は保証されません。取得日時と失敗理由は「取得状況・データの読み方」で確認できます。
+
+## TOPIXとStooqについて
+
+2026年9月8日の実データ確認では、TOPIXを含む５指標の取得に成功しました。TOPIXは日本版Yahooの時系列表で、9月7日の終値4,125.80と9月4日の4,103.23を確認しました。これらの値はコードに埋め込んでいません。
+
+Stooqへの実通信では、ブラウザー確認画面やHTTP 404が返り、実データの取得成功は確認できませんでした。そのため、StooqだけでTOPIXを直したとはしていません。代替処理そのものは、成功CSV・空データ・通信エラーを使った自動テストで確認しています。
+
+日本版YahooのHTML構造やデータ提供条件、各サービスの応答は変わることがあります。取得できなくなった場合は、詳細表示で原因を確認してください。個人で確認するダッシュボードを想定しています。
+
+## 困ったとき
+
+| 表示・症状 | 操作 |
+| --- | --- |
+| `ModuleNotFoundError` | アプリを停止し、上記の `python -m pip install -r requirements.txt` を実行して再起動します。 |
+| `Port 8502 is already in use` | 8502で動いているアプリのターミナルを探してCtrl+Cで停止するか、起動コマンドのポートを8503に変えます。ブラウザーもそのポートで開きます。 |
+| 数値や見た目が変わらない | Ctrl+Sで保存したか、ブラウザーで新しく起動したポートを開いているかを確認します。 |
+| TOPIXだけ取得失敗 | 「取得状況・データの読み方」を開いて理由を確認します。時間をおいて「今すぐ更新」を押します。 |
+| 古い日付が表示される | 休場日・更新時刻・取得元を確認します。「前回の値」なら再取得に失敗しています。 |
+
+## コードの読み順とテスト
+
+アプリは「設定」「データの読み取りと検証」「表示」の３つに分かれています。取得の順番は `fetch_market`、数値の計算は `quote_values`、カードの見た目は `CARD_CSS` と `card_html` にまとめています。
+
+26項目の自動テストを用意しています。保存設定、自由入力、通常表示、取得元停止に加え、Sector RadarのSignal計算、欠損日の除外、市場ETF取得失敗時の停止を確認します。ブラウザーでは、サイドバー、カード内の日本版Yahoo!リンク、画面幅1440px・550px・375pxでのカードの折り返しと数値の収まりを確認しています。
+
+通信なしのテストは、`test_streamlit_app.py` も同じフォルダーに置いて実行できます。
+
+```bash
+python -m unittest -v test_streamlit_app test_sector_radar
 ```
 
-1. Sync the dependencies
+参照先：
 
-   ```
-   $ uv sync
-   ```
-
-2. Run the app
-
-   ```
-   $ uv run streamlit run streamlit_app.py
-   ```
+- [Yahoo!ファイナンスのTOPIX時系列](https://finance.yahoo.co.jp/quote/998405.T/history)
+- [yfinance公式：Ticker.history](https://ranaroussi.github.io/yfinance/reference/api/yfinance.Ticker.history.html)
+- [Streamlit公式：キャッシュ](https://docs.streamlit.io/develop/api-reference/caching-and-state/st.cache_data)
+- [GitHub公式：Codespacesのポート転送](https://docs.github.com/en/codespaces/developing-in-a-codespace/forwarding-ports-in-your-codespace)
